@@ -1,3 +1,5 @@
 The issue of DoS and DDoS, detailed analysis of the available tools, methodologies and practical demonstration.
 a) A detailed description of the possible tools for the implementation of DoS and DDoS, the methodology of acquisition targets and distribution network.
 b) Demonstration and examples of DoS.
+
+https://www.imperva.com/learn/application-security/ddos-attacks/
